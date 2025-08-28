@@ -1,0 +1,97 @@
+services:
+  cube_api:
+    restart: always
+    image: cubejs/cube:v1.3.58
+    ports:
+      - 4000:4000
+    environment:
+      - CUBEJS_DEV_MODE=true
+      - CUBEJS_DB_TYPE=clickhouse
+      - CUBEJS_DB_HOST=clickhouse
+      - CUBEJS_DB_NAME=test_clickhouse_db
+      - CUBEJS_DB_PORT=8123
+      - CUBEJS_DB_USER=test_clickhouse_user
+      - CUBEJS_DB_PASS=test_clickhouse_password
+      - CUBEJS_DB_CLICKHOUSE_READONLY=true
+      - CUBEJS_CUBESTORE_HOST=cubestore_router
+      - CUBEJS_API_SECRET=secret
+    volumes:
+      - .:/cube/conf
+    depends_on:
+      - cube_refresh_worker
+      - cubestore_router
+      - cubestore_worker_1
+      - cubestore_worker_2
+      - clickhouse
+
+  cube_refresh_worker:
+    restart: always
+    image: cubejs/cube:v1.3.58
+    environment:
+      - CUBEJS_DEV_MODE=true
+      - CUBEJS_DB_TYPE=clickhouse
+      - CUBEJS_DB_HOST=clickhouse
+      - CUBEJS_DB_NAME=test_clickhouse_db
+      - CUBEJS_DB_PORT=8123
+      - CUBEJS_DB_USER=test_clickhouse_user
+      - CUBEJS_DB_PASS=test_clickhouse_password
+      - CUBEJS_DB_CLICKHOUSE_READONLY=true
+      - CUBEJS_CUBESTORE_HOST=cubestore_router
+      - CUBEJS_API_SECRET=secret
+      - CUBEJS_REFRESH_WORKER=true
+    volumes:
+      - .:/cube/conf
+    depends_on:
+      - clickhouse
+
+  cubestore_router:
+    restart: always
+    image: cubejs/cubestore:v1.3.58-arm64v8
+    environment:
+      - CUBEJS_DEV_MODE=true
+      - CUBESTORE_WORKERS=cubestore_worker_1:10001,cubestore_worker_2:10002
+      - CUBESTORE_REMOTE_DIR=/cube/data
+      - CUBESTORE_META_PORT=9999
+      - CUBESTORE_SERVER_NAME=cubestore_router:9999
+    volumes:
+      - .cubestore:/cube/data
+
+  cubestore_worker_1:
+    restart: always
+    image: cubejs/cubestore:v1.3.58-arm64v8
+    environment:
+      - CUBEJS_DEV_MODE=true
+      - CUBESTORE_WORKERS=cubestore_worker_1:10001,cubestore_worker_2:10002
+      - CUBESTORE_SERVER_NAME=cubestore_worker_1:10001
+      - CUBESTORE_WORKER_PORT=10001
+      - CUBESTORE_REMOTE_DIR=/cube/data
+      - CUBESTORE_META_ADDR=cubestore_router:9999
+    volumes:
+      - .cubestore:/cube/data
+    depends_on:
+      - cubestore_router
+
+  cubestore_worker_2:
+    restart: always
+    image: cubejs/cubestore:v1.3.58-arm64v8
+    environment:
+      - CUBEJS_DEV_MODE=true
+      - CUBESTORE_WORKERS=cubestore_worker_1:10001,cubestore_worker_2:10002
+      - CUBESTORE_SERVER_NAME=cubestore_worker_2:10002
+      - CUBESTORE_WORKER_PORT=10002
+      - CUBESTORE_REMOTE_DIR=/cube/data
+      - CUBESTORE_META_ADDR=cubestore_router:9999
+    volumes:
+      - .cubestore:/cube/data
+    depends_on:
+      - cubestore_router
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.8.16
+    ports:
+      - 8123:8123
+    environment:
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_DB=test_clickhouse_db
+      - CLICKHOUSE_USER=test_clickhouse_user
+      - CLICKHOUSE_PASSWORD=test_clickhouse_password

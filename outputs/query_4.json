@@ -1,0 +1,57 @@
+{
+    "sql": {
+        "external": false,
+        "sql": ["SELECT\n      `tickets`.ticketId `tickets__ticket_id`, `messages`.ticketId `messages__ticket_id`, count(`tickets`.ticketId) `tickets__ticket_count`\n    FROM\n      (\n        SELECT\n            ticket_id AS ticketId,\n            max(ticket_closed_datetime) AS closedDatetime,\n        FROM data_tickets\n        GROUP BY ticketId\n    ) AS `tickets`\nLEFT JOIN (\n        SELECT\n            ticket_id AS ticketId,\n            count(ticket_message_id) AS messagesCount,\n        FROM data_messages\n        GROUP BY ticketId\n    ) AS `messages` ON `tickets`.ticketId = `messages`.ticketId  WHERE ((1 = 1)) GROUP BY `tickets__ticket_id`, `messages__ticket_id` ORDER BY `tickets__ticket_count` DESC LIMIT 10000", []],
+        "lambdaQueries": {},
+        "order": {
+            "Tickets.ticketCount": "desc"
+        },
+        "cacheKeyQueries": [
+            ["SELECT FLOOR((UNIX_TIMESTAMP()) / 10) as refresh_key", [], {
+                "external": true,
+                "renewalThreshold": 10
+            }],
+            ["SELECT FLOOR((UNIX_TIMESTAMP()) / 10) as refresh_key", [], {
+                "external": true,
+                "renewalThreshold": 10
+            }]
+        ],
+        "preAggregations": [],
+        "dataSource": "default",
+        "aliasNameToMember": {
+            "tickets__ticket_count": "Tickets.ticketCount",
+            "tickets__ticket_id": "Tickets.ticketId",
+            "messages__ticket_id": "Messages.ticketId"
+        },
+        "rollupMatchResults": [],
+        "canUseTransformedQuery": {
+            "sortedDimensions": ["Tickets.Messages.ticketId", "Tickets.closedTickets", "Tickets.ticketId"],
+            "sortedTimeDimensions": [],
+            "timeDimensions": [],
+            "measures": ["Tickets.ticketCount"],
+            "leafMeasureAdditive": true,
+            "leafMeasures": ["Tickets.ticketCount"],
+            "measureToLeafMeasures": {
+                "Tickets.ticketCount": [{
+                    "measure": "Tickets.ticketCount",
+                    "additive": true,
+                    "type": "count"
+                }]
+            },
+            "hasNoTimeDimensionsWithoutGranularity": true,
+            "allFiltersWithinSelectedDimensions": true,
+            "isAdditive": true,
+            "granularityHierarchies": {},
+            "hasMultipliedMeasures": false,
+            "hasCumulativeMeasures": false,
+            "windowGranularity": null,
+            "filterDimensionsSingleValueEqual": {},
+            "ownedDimensions": ["Tickets.Messages.ticketId", "Tickets.ticketId"],
+            "ownedTimeDimensionsWithRollupGranularity": [],
+            "ownedTimeDimensionsAsIs": [],
+            "allBackAliasMembers": {},
+            "hasMultiStage": false
+        },
+        "memberNames": ["Tickets.ticketCount", "Tickets.ticketId", "Messages.ticketId", "Tickets.closedTickets"]
+    }
+}
