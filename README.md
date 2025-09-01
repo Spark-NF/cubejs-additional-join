@@ -9,18 +9,24 @@ The compiler "remembers" the fields used in previous queries and uses them to co
 
 ## Reproduction steps
 
-### Build and run
+### Build
 
 The docker compose file was taken as-is from <https://cube.dev/docs/product/deployment/core>, with a ClickHouse database setup added.
 
 ```sh
 docker compose build
-docker compose up cube_api
 ```
 
 ### Run the queries
 
-1. Run a first query that uses two cubes:
+> [!WARNING]
+> Make sure to run the queries quickly after starting `cube_api`, as the queries triggered in the background by the scheduler can influence the results.
+
+1. Start `cube_api`:
+   ```sh
+   docker compose up cube_api
+   ```
+2. Run a first query that uses two cubes:
    ```json
    {
        "dimensions": ["Tickets.ticketId", "Messages.ticketId"],
@@ -31,8 +37,8 @@ docker compose up cube_api
    ```sh
    curl 'http://localhost:4000/cubejs-api/v1/sql' -X POST -H 'Content-Type: application/json' --data-raw '{"query":{"dimensions":["Tickets.ticketId","Messages.ticketId"],"segments":["Tickets.closedTickets"],"measures":["Tickets.ticketCount"]}}' | jq -r '.sql.sql[0]'
    ```
-2. Notice the (expected) `LEFT JOIN` between both cubes (see [query_1.json](outputs/query_1.json) / [query_1.sql](outputs/query_1.sql))
-3. Run a second query that uses a single cube:
+3. Notice the (expected) `LEFT JOIN` between both cubes (see [query_1.json](outputs/query_1.json) / [query_1.sql](outputs/query_1.sql))
+4. Run a second query that uses a single cube:
    ```json
    {
        "dimensions": ["Tickets.ticketId"],
@@ -43,7 +49,7 @@ docker compose up cube_api
    ```sh
    curl 'http://localhost:4000/cubejs-api/v1/sql' -X POST -H 'Content-Type: application/json' --data-raw '{"query":{"dimensions":["Tickets.ticketId"],"segments":["Tickets.closedTickets"],"measures":["Tickets.ticketCount"]}}' | jq -r '.sql.sql[0]'
    ```
-4. The `LEFT JOIN` is here even though it's not necssary (see [query_2.json](outputs/query_2.json) / [query_2.sql](outputs/query_2.sql))
+5. The `LEFT JOIN` is here even though it's not necssary (see [query_2.json](outputs/query_2.json) / [query_2.sql](outputs/query_2.sql))
 
 > [!NOTE]
 > * If you swap the order of the queries on a fresh start, it works as expected, see [query_3.json](outputs/query_3.json) / [query_3.sql](outputs/query_3.sql) and [query_4.json](outputs/query_4.json) / [query_4.sql](outputs/query_4.sql)
