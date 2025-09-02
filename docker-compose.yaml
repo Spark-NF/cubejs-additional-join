@@ -1,7 +1,7 @@
 services:
   cube_api:
     restart: always
-    image: cubejs/cube:v1.3.58
+    image: cubejs/cube:v1.3.62
     ports:
       - 4000:4000
     environment:
@@ -26,7 +26,7 @@ services:
 
   cube_refresh_worker:
     restart: always
-    image: cubejs/cube:v1.3.58
+    image: cubejs/cube:v1.3.62
     environment:
       - CUBEJS_DEV_MODE=true
       - CUBEJS_DB_TYPE=clickhouse
@@ -46,7 +46,7 @@ services:
 
   cubestore_router:
     restart: always
-    image: cubejs/cubestore:v1.3.58-arm64v8
+    image: cubejs/cubestore:v1.3.62-arm64v8
     environment:
       - CUBEJS_DEV_MODE=true
       - CUBESTORE_WORKERS=cubestore_worker_1:10001,cubestore_worker_2:10002
@@ -58,7 +58,7 @@ services:
 
   cubestore_worker_1:
     restart: always
-    image: cubejs/cubestore:v1.3.58-arm64v8
+    image: cubejs/cubestore:v1.3.62-arm64v8
     environment:
       - CUBEJS_DEV_MODE=true
       - CUBESTORE_WORKERS=cubestore_worker_1:10001,cubestore_worker_2:10002
@@ -73,7 +73,7 @@ services:
 
   cubestore_worker_2:
     restart: always
-    image: cubejs/cubestore:v1.3.58-arm64v8
+    image: cubejs/cubestore:v1.3.62-arm64v8
     environment:
       - CUBEJS_DEV_MODE=true
       - CUBESTORE_WORKERS=cubestore_worker_1:10001,cubestore_worker_2:10002

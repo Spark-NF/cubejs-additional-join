@@ -2,7 +2,7 @@
 
 The compiler "remembers" the fields used in previous queries and uses them to compute the joins, causing unnecessary joins in some queries.
 
-* This happens on the latest Cube.js version (1.3.58 at the time of writing)
+* This happens on the latest Cube.js version (1.3.62 at the time of writing)
 * This happens since Cube.js version [0.35.80](https://github.com/cube-js/cube/releases/tag/v0.35.80), likely from "fix(schema-compiler): propagate FILTER_PARAMS from view to inner cube's SELECT" ([#8466](https://github.com/cube-js/cube/pull/8466) / [c0466fd](https://github.com/cube-js/cube/commit/c0466fde9b7a3834159d7ec592362edcab6d9795))
 * The fix in Cube.js version [0.36.3](https://github.com/cube-js/cube/releases/tag/v0.36.3), "fix(schema-compiler): fix FILTER_PARAMS propagation from view to cube's SQL query" ([#8721](https://github.com/cube-js/cube/pull/8721) / [ec2c2ec](https://github.com/cube-js/cube/commit/ec2c2ec4d057dd1b29748d2b3847d7b60f96d5c8)) does not solve this issue
 
